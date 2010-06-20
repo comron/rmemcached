@@ -6,7 +6,7 @@ static void memcache_connection_finalizer(SEXP ptr) {
   R_ClearExternalPtr(ptr);
 }
 
-bool isMemcachedConnection(SEXP conn) {
+inline bool isMemcachedConnection(SEXP conn) {
   return (isExternalPointer(conn) && strcmp(CHAR(PRINTNAME(TAG(conn))), "Rmemcached_connection") == 0);
 }
 
