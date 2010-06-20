@@ -4,9 +4,11 @@ cache.connect <- function(host, port) {
 
 #.Call("sha1_object", bytes, skip)
 cache.set <- function(conn, key, value) {
-  .Call("memcache_set", conn, key, value)
+  v <- rawToChar(serialize(value, connection=NULL, ascii=TRUE))
+  .Call("memcache_set", conn, key, v)
 }
 
 cache.get <- function(conn, key) {
-  .Call("memcache_get", conn, key)
+  v <- .Call("memcache_get", conn, key)
+  unserialize(charToRaw(v))
 }
