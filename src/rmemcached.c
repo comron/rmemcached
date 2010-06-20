@@ -1,6 +1,19 @@
 #include "rmemcached.h"
 
+static void memcache_connection_finalizer(SEXP ptr) {
+  if(!R_ExternalPtrAddr(ptr)) return;
+  memcached_free(R_ExternalPtrAddr(ptr));
+  R_ClearExternalPtr(ptr);
+}
+
+bool isMemcachedConnection(SEXP conn) {
+  return (isExternalPointer(conn) && strcmp(CHAR(PRINTNAME(TAG(conn))), "Rmemcached_connection") == 0);
+}
+
 SEXP memcache_connect(SEXP host, SEXP port) {
+  if(!isString(host)) error("'host' must be of type character");
+  if(!isInteger(port)) error("'port' must be of type integer");
+
   SEXP memc_ptr;
 
   memcached_return_t rc;
@@ -11,7 +24,7 @@ SEXP memcache_connect(SEXP host, SEXP port) {
   rc = memcached_server_push(memc, servers);  
   memcached_server_free(servers);
   
-  memc_ptr = R_MakeExternalPtr((void *)memc, R_NilValue, R_NilValue);
+  memc_ptr = R_MakeExternalPtr((void *)memc, install("Rmemcached_connection"), R_NilValue);
 
   PROTECT(memc_ptr);
   R_RegisterCFinalizerEx(memc_ptr, memcache_connection_finalizer, TRUE);
@@ -20,19 +33,16 @@ SEXP memcache_connect(SEXP host, SEXP port) {
   return memc_ptr;
 }
 
-static void memcache_connection_finalizer(SEXP ptr) {
-  if(!R_ExternalPtrAddr(ptr)) return;
-  memcached_free(R_ExternalPtrAddr(ptr));
-  R_ClearExternalPtr(ptr);
-}
-
 SEXP memcache_set(SEXP conn, SEXP key, SEXP value) {
+  if(!isMemcachedConnection(conn)) error("'conn' must be a memcached connection");
+  if(!isString(key)) error("'key' must be of type character");
+  if(!isString(value)) error("'value' must be of type character");
+  
   SEXP ans;
-
   memcached_return_t rc;
   memcached_st *memc = (memcached_st *)R_ExternalPtrAddr(conn);
-  const char* c_key = CHAR(STRING_ELT(key, 0));
-  const char* c_value = CHAR(STRING_ELT(value, 0));
+  const char *c_key = CHAR(STRING_ELT(key, 0));
+  const char *c_value = CHAR(STRING_ELT(value, 0));
   
   rc = memcached_set(memc, c_key, strlen(c_key), c_value, strlen(c_value), (time_t)0, (uint32_t)0);
 
@@ -44,8 +54,10 @@ SEXP memcache_set(SEXP conn, SEXP key, SEXP value) {
 }
 
 SEXP memcache_get(SEXP conn, SEXP key) {
+  if(!isMemcachedConnection(conn)) error("'conn' must be a memcached connection");
+  if(!isString(key)) error("'key' must be of type character");
+  
   SEXP ans;
-
   memcached_return_t rc;
   memcached_st *memc = (memcached_st *)R_ExternalPtrAddr(conn);
   const char* c_key = CHAR(STRING_ELT(key, 0));
