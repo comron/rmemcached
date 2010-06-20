@@ -1,0 +1,14 @@
+AC_INIT(rmemcached, version-0.1)
+AC_CHECK_HEADERS(libmemcached/memcached.h)
+AC_CHECK_LIB(memcached, memcached_create)
+
+## libs=`pkg-config --libs memcached`
+
+AC_ARG_WITH([libmemcached-path],
+  [AS_HELP_STRING([--with-libmemcached-path], [location of the libmemcached libraries])],
+  [MEMCACHED_LIBS="-L$withval -lmemcached"],
+  [MEMCACHED_LIBS='-lmemcached'])
+
+AC_SUBST([PKG_LIBS],["${PKG_LIBS} ${MEMCACHED_LIBS}"])
+
+AC_OUTPUT(src/Makevars)

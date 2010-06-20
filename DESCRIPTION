@@ -1,0 +1,13 @@
+Package: rmemcached
+Version: 0.1
+Date: 2010-06-14
+Title: An R interface to memcached
+Author: Comron Sattari <comron.sattari@gmail.com>
+Maintainer: Comron Sattari <comron.sattari@gmail.com>
+Depends: R (>= 1.8.0)
+Suggests: 
+Description: A simple interface to memcached based on libmemcached
+License: GPL (>= 2)
+URL: http://www.r-project.org, http://www.github.com/comron/rmemcached
+BugReports: http://www.github.com/comron/rmemcached
+SystemRequirements: libmemcached (http://libmemcached.org/)

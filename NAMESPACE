@@ -1,0 +1,7 @@
+export(
+       "cache.connect",
+       "cache.set",
+       "cache.get"
+       )
+       
+useDynLib(rmemcached)
