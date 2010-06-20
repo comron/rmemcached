@@ -10,5 +10,6 @@ cache.set <- function(conn, key, value) {
 
 cache.get <- function(conn, key) {
   v <- .Call("memcache_get", conn, key)
-  unserialize(charToRaw(v))
+  if(!is.null(v)) unserialize(charToRaw(v))
+  else v
 }
